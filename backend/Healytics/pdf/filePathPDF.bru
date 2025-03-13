@@ -1,0 +1,19 @@
+meta {
+  name: filePathPDF
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/pdf/generate
+  body: none
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyY2FjNDc2NC1lZmZmLTQ3MjgtOTUyZi1lMDhmYjhmMGJhNzQiLCJpYXQiOjE3NDE4NjYwOTksImV4cCI6MTc0MTg2OTY5OX0.W3WY01Ftcha_jd8sDw9s5MkuARyWth4Dp8ZtOxqJGTQ
+}
