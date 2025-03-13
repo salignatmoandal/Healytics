@@ -32,42 +32,77 @@ export default function Chat() {
     }
   }, [messages]);
 
+  /**
+   * handleSend : interprète "oui" ou "non", sinon ajoute un symptôme
+   */
   const handleSend = () => {
     if (inputText.trim() === '') return;
-    
-    // Créer le message utilisateur
+
+    // 1) Création du message utilisateur
     const userMessage: Message = {
       id: Date.now().toString(),
       text: inputText,
       isUser: true,
       timestamp: new Date(),
     };
-    
-    // Calculez le nouveau tableau de symptômes (incluant le dernier message)
-    const newSymptoms = [...symptoms, inputText];
-    
+
+    // On l'ajoute immédiatement à la liste des messages
     setMessages(prev => [...prev, userMessage]);
-    setSymptoms(newSymptoms);
+
+    // 2) Interprétation de la saisie
+    const normalized = inputText.trim().toLowerCase();
+
+    // Copie du tableau actuel pour mise à jour si c'est un symptôme
+    const newSymptoms = [...symptoms];
+
+    // Si l'utilisateur tape "oui" et qu'il y a déjà au moins 2 symptômes
+    if (normalized === 'oui' && newSymptoms.length >= 2) {
+      // On lance l'analyse après un léger délai (optionnel)
+      setTimeout(() => {
+        analyzeSymptoms();
+      }, 1000);
+
+    // Si l'utilisateur tape "non"
+    } else if (normalized === 'non') {
+      setTimeout(() => {
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: 'D\'accord, n\'hésitez pas à me décrire d\'autres symptômes plus tard ou à taper "oui" pour analyser.',
+          isUser: false,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      }, 1000);
+
+    // Sinon, on considère la saisie comme un nouveau symptôme
+    } else {
+      newSymptoms.push(inputText);
+      setSymptoms(newSymptoms);
+
+      setTimeout(() => {
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: newSymptoms.length >= 2
+            ? 'Souhaitez-vous que j\'analyse ces symptômes maintenant ? (Tapez "oui" ou appuyez sur le bouton Analyser)'
+            : 'Avez-vous d\'autres symptômes à me signaler ?',
+          isUser: false,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      }, 1000);
+    }
+
+    // On vide le champ de saisie
     setInputText('');
-    
-    // Proposer une analyse ou demander plus de symptômes selon le nombre
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: newSymptoms.length >= 2 
-          ? 'Souhaitez-vous que j\'analyse ces symptômes maintenant ?'
-          : 'Avez-vous d\'autres symptômes à me signaler ?',
-        isUser: false,
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, assistantMessage]);
-    }, 1000);
   };
 
+  /**
+   * analyzeSymptoms : envoie les symptômes à l'API pour analyse
+   */
   const analyzeSymptoms = async () => {
     setIsAnalyzing(true);
-    
-    // Message d'analyse en cours
+
+    // Message "Analyse en cours..."
     const analysisMessage: Message = {
       id: Date.now().toString(),
       text: 'Analyse en cours...',
@@ -75,12 +110,12 @@ export default function Chat() {
       timestamp: new Date(),
     };
     setMessages(prev => [...prev, analysisMessage]);
-    
+
     try {
       // Récupérer le token d'authentification
       const token = await AsyncStorage.getItem('@Healytics:token');
       console.log('Envoi des symptômes à l\'API:', symptoms);
-      
+
       // Appel à l'API d'analyse
       const response = await fetch(`${API_URL}/ai/analyze`, {
         method: 'POST',
@@ -90,14 +125,14 @@ export default function Chat() {
         },
         body: JSON.stringify({ symptoms }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`Erreur API: ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('Réponse de l\'API:', data);
-      
+
       // Construire le texte de résultat
       let resultText = 'Résultat de l\'analyse:\n\n';
       if (data.result && Array.isArray(data.result)) {
@@ -112,18 +147,18 @@ export default function Chat() {
       } else {
         resultText += JSON.stringify(data.result, null, 2);
       }
-      
+
       const resultMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: resultText,
         isUser: false,
         timestamp: new Date(),
       };
-      
-      // Remplacer le message d'analyse par le résultat
-      setMessages(prev => prev.map(m => m.id === analysisMessage.id ? resultMessage : m));
-      
-      // Message de suivi après l'analyse
+
+      // Remplacer le message "Analyse en cours..." par le résultat
+      setMessages(prev => prev.map(m => (m.id === analysisMessage.id ? resultMessage : m)));
+
+      // Message de suivi
       setTimeout(() => {
         const followUpMessage: Message = {
           id: (Date.now() + 2).toString(),
@@ -133,21 +168,26 @@ export default function Chat() {
         };
         setMessages(prev => [...prev, followUpMessage]);
       }, 1500);
-      
+
     } catch (error) {
       console.error('Erreur lors de l\'analyse:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: `Désolé, une erreur est survenue lors de l'analyse: ${error instanceof Error ? error.message : 'Erreur inconnue'}. Veuillez réessayer.`,
+        text: `Désolé, une erreur est survenue lors de l'analyse: ${
+          error instanceof Error ? error.message : 'Erreur inconnue'
+        }. Veuillez réessayer.`,
         isUser: false,
         timestamp: new Date(),
       };
-      setMessages(prev => prev.map(m => m.id === analysisMessage.id ? errorMessage : m));
+      setMessages(prev => prev.map(m => (m.id === analysisMessage.id ? errorMessage : m)));
     } finally {
       setIsAnalyzing(false);
     }
   };
 
+  /**
+   * Affichage d'un message dans la FlatList
+   */
   const renderMessage = ({ item }: { item: Message }) => (
     <View 
       style={{
@@ -185,6 +225,7 @@ export default function Chat() {
         contentContainerStyle={{ padding: 15, paddingBottom: 70 }}
       />
       
+      {/* Bouton "Analyser mes symptômes" si on a déjà au moins 1 symptôme et qu'on n'est pas en cours d'analyse */}
       {symptoms.length >= 1 && !isAnalyzing && (
         <TouchableOpacity 
           style={{
@@ -197,7 +238,9 @@ export default function Chat() {
           }}
           onPress={analyzeSymptoms}
         >
-          <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Analyser mes symptômes</Text>
+          <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
+            Analyser mes symptômes
+          </Text>
         </TouchableOpacity>
       )}
       
@@ -223,7 +266,7 @@ export default function Chat() {
           }}
           value={inputText}
           onChangeText={setInputText}
-          placeholder="Décrivez vos symptômes..."
+          placeholder="Décrivez vos symptômes ou tapez 'oui'/'non'..."
           multiline
           keyboardType="default"
         />
@@ -240,7 +283,11 @@ export default function Chat() {
           onPress={handleSend}
           disabled={inputText.trim() === ''}
         >
-          <Ionicons name="send" size={24} color={inputText.trim() === '' ? 'rgba(255,255,255,0.5)' : '#fff'} />
+          <Ionicons
+            name="send"
+            size={24}
+            color={inputText.trim() === '' ? 'rgba(255,255,255,0.5)' : '#fff'}
+          />
         </TouchableOpacity>
       </View>
       
@@ -262,7 +309,9 @@ export default function Chat() {
             alignItems: 'center',
           }}>
             <ActivityIndicator size="large" color="#0c8a56" />
-            <Text style={{ marginTop: 12, color: '#1f2937', fontWeight: '500' }}>Analyse en cours...</Text>
+            <Text style={{ marginTop: 12, color: '#1f2937', fontWeight: '500' }}>
+              Analyse en cours...
+            </Text>
           </View>
         </View>
       )}
