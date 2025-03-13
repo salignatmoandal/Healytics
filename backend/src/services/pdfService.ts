@@ -1,19 +1,19 @@
 import PDFDocument from 'pdfkit';
 import * as Prisma from '@prisma/client'; 
-import prisma from '../../prisma/prisma-client';
 
 
-// On étend le type pour ajouter un champ optionnel "result"
+
+// Extend the type to add an optional "result" field
 export type SymptomWithResult = Prisma.Symptom & { result?: string };
 
 export const generateSymptomPdf = async (check: SymptomWithResult | null): Promise<Buffer> => {
   const doc = new PDFDocument({ bufferPages: true });
   const buffers: Buffer[] = [];
 
-  // Récupère les données du PDF dans un tableau de Buffer
+  // Retrieve the PDF data in an array of Buffer
   doc.on('data', (chunk: Buffer) => buffers.push(chunk));
   
-  // Titre du PDF
+  // PDF title
   doc.fontSize(20).text('AI Symptom Checker Report', { underline: true });
   doc.moveDown();
 
@@ -21,10 +21,10 @@ export const generateSymptomPdf = async (check: SymptomWithResult | null): Promi
     doc.fontSize(14)
       .text(`Symptom Record ID: ${check.id}`, { continued: true });
     doc.moveDown();
-    // Affiche les symptômes (le champ "details" défini dans le modèle)
+    // Display the symptoms (the "details" field defined in the model)
     doc.text(`Symptoms: ${check.details}`);
     doc.moveDown();
-    // Affiche le résultat de l'analyse (si fourni)
+    // Display the analysis result (if provided)
     if (check.result) {
       doc.text(`Possible Conditions: ${check.result}`);
     } else {
