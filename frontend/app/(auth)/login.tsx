@@ -8,13 +8,13 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
-  const router = useRouter(); // ✅ Utilisation correcte
+  const router = useRouter(); //
 
   const handleLogin = async () => {
     try {
       setError('');
       await login(email, password);
-      router.replace('/home'); // ✅ Utilisation correcte
+      router.replace('/home'); 
     } catch (err) {
       setError('Identifiants invalides');
     }
@@ -22,6 +22,7 @@ export default function Login() {
 
   return (
     <View className="flex-1 justify-center items-center p-5 bg-gray-100">
+      
       <Text className="text-3xl font-bold mb-8 text-green-600">Connexion</Text>
       
       {error ? <Text className="text-red-500 mb-4">{error}</Text> : null}
