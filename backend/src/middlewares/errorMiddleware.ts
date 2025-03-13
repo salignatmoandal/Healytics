@@ -1,7 +1,8 @@
-// --- Global error handling middleware --- //
 
-import { Context } from 'hono';
-import { ErrorHandler } from 'hono';
+
+// --- Global error handling middleware --- //
+import type { Context } from 'hono';
+import type { ErrorHandler } from 'hono';
 
 // Middleware standard pour les routes
 export const errorMiddleware = async (c: Context, next: () => Promise<void>) => {
