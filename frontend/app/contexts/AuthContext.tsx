@@ -4,7 +4,7 @@ import axios from 'axios';
 
 // Créer une instance axios
 const api = axios.create({
-  baseURL: 'http://localhost:3000/auth/register',
+  baseURL: 'http://localhost:3000',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -52,6 +52,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loadStorageData();
   }, []);
 
+  // const apiRegister = async (endpoint: string, method: string, data?: any) => {
+  //   const headers : HeadersInit = {
+  //     'Content-Type': 'application/json',
+  //   };
+
+  //   if (token) {
+  //     headers['Authorization'] = `Bearer ${token}`;
+      
+
+  //   }
+
+  //   const config: RequestInit = {
+  //     method,
+  //     headers,
+  //     body: data ? JSON.stringify(data) : undefined,
+  //   };
+    
+    
   const login = async (email: string, password: string) => {
     try {
       const response = await api.post<AuthResponse>('/auth/login', { email, password });
