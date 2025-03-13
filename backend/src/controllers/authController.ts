@@ -1,4 +1,4 @@
-import { Context } from "hono";
+import type { Context } from "hono";
 import { AuthService } from "../services/authService";
 
 export class AuthController {

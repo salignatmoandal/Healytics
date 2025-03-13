@@ -1,6 +1,6 @@
 // src/controllers/aiController.ts
-import { Context } from 'hono';
-import { AIService } from '../services/ai';
+import { type Context } from 'hono';
+import { AIService } from '../services/aiService';
 
 export class AIController {
   static async analyze(c: Context) {

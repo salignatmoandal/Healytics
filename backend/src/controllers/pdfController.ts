@@ -1,5 +1,5 @@
-import { Context } from "hono";
-import { generateSymptomPdf } from "../services/pdfGenerator";
+import { type Context } from "hono";
+import { generateSymptomPdf } from "../services/pdfService";
 
 export class PDFController {
   static async generate(c: Context) {
