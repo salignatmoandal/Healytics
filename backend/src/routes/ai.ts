@@ -1,7 +1,7 @@
 // --- AI routes --- //
 
 import { Hono } from 'hono';
-import { AIService } from '../services/ai';
+import { AIService } from '../services/aiService';
 
 const aiRoutes = new Hono();
 
