@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, ActivityIndicator, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -24,6 +24,9 @@ export default function Chat() {
   const [inputText, setInputText] = useState('');
   const [symptoms, setSymptoms] = useState<string[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisId, setAnalysisId] = useState<string | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
@@ -169,6 +172,11 @@ export default function Chat() {
         setMessages(prev => [...prev, followUpMessage]);
       }, 1500);
 
+      // Stocker l'ID de l'analyse
+      if (data.reportId) {
+        setAnalysisId(data.reportId);
+      }
+
     } catch (error) {
       console.error('Erreur lors de l\'analyse:', error);
       const errorMessage: Message = {
@@ -182,6 +190,64 @@ export default function Chat() {
       setMessages(prev => prev.map(m => (m.id === analysisMessage.id ? errorMessage : m)));
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  /**
+   * generatePdf : génère un PDF à partir de l'analyse
+   */
+  const generatePdf = async () => {
+    if (!analysisId) return;
+    
+    setIsGeneratingPdf(true);
+    
+    try {
+      const token = await AsyncStorage.getItem('@Healytics:token');
+      
+      const response = await fetch(`${API_URL}/pdf/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({ analysisId }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Réponse de génération PDF:', data);
+      
+      if (data.success && data.pdfUrl) {
+        setPdfUrl(data.pdfUrl);
+        
+        // Ajouter un message dans le chat
+        const pdfMessage: Message = {
+          id: Date.now().toString(),
+          text: `Votre rapport PDF a été généré avec succès. Vous pouvez le télécharger ou le partager avec votre médecin.`,
+          isUser: false,
+          timestamp: new Date(),
+        };
+        
+        setMessages(prev => [...prev, pdfMessage]);
+        
+        // Ouvrir le PDF ou proposer de le partager
+        // (code pour ouvrir/partager le PDF)
+      }
+    } catch (error) {
+      console.error('Erreur lors de la génération du PDF:', error);
+      
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        text: `Désolé, une erreur est survenue lors de la génération du PDF: ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsGeneratingPdf(false);
     }
   };
 
@@ -241,6 +307,27 @@ export default function Chat() {
           <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
             Analyser mes symptômes
           </Text>
+        </TouchableOpacity>
+      )}
+      
+      {analysisId && !pdfUrl && !isGeneratingPdf && (
+        <TouchableOpacity 
+          className="bg-blue-600 p-4 rounded-xl mx-4 mb-4 items-center"
+          onPress={generatePdf}
+        >
+          <Text className="text-white font-bold text-base">Générer un rapport PDF</Text>
+        </TouchableOpacity>
+      )}
+      
+      {pdfUrl && (
+        <TouchableOpacity 
+          className="bg-green-600 p-4 rounded-xl mx-4 mb-4 items-center"
+          onPress={() => {
+            // Ouvrir le PDF dans le navigateur ou avec une visionneuse PDF
+            Linking.openURL(`${API_URL}${pdfUrl}`);
+          }}
+        >
+          <Text className="text-white font-bold text-base">Voir/Partager le rapport PDF</Text>
         </TouchableOpacity>
       )}
       

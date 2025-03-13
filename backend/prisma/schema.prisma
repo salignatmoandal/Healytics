@@ -30,4 +30,5 @@ model Report {
   createdAt DateTime  @default(now())
   user      User      @relation(fields: [userId], references: [id])
   symptoms  Symptom[] @relation("ReportToSymptom")
+  pdfUrl    String?
 }
