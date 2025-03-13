@@ -1,10 +1,9 @@
-// apps/backend/prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql" // ou sqlite, mysql selon votre préférence
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -12,6 +11,7 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String?
+  password  String
   createdAt DateTime @default(now())
   reports   Report[]
 }
@@ -21,13 +21,13 @@ model Symptom {
   name        String
   description String?
   createdAt   DateTime @default(now())
-  reports     Report[]
+  reports     Report[] @relation("ReportToSymptom")
 }
 
 model Report {
   id        String    @id @default(uuid())
   userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  symptoms  Symptom[]
   createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+  symptoms  Symptom[] @relation("ReportToSymptom")
 }
