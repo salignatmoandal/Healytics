@@ -1,12 +1,12 @@
 import { Hono } from "hono";
-import authRoutes from "./routes/auth";
-import symptomRoutes from "./routes/symptom";
-import pdfRoutes from "./routes/pdf";
-import aiRoutes from "./routes/ai";
+import authRoutes from "./src/routes/auth";
+import symptomRoutes from "./src/routes/symptom";
+import pdfRoutes from "./src/routes/pdf";
+import aiRoutes from "./src/routes/ai";
 
-import { loggerMiddleware } from "./middlewares/loggerMiddleware";
-import { errorMiddleware, errorHandler } from "./middlewares/errorMiddleware";
-import usersRoutes from "./routes/user";
+import { loggerMiddleware } from "./src/middlewares/loggerMiddleware";
+import { errorMiddleware, errorHandler } from "./src/middlewares/errorMiddleware";
+import usersRoutes from "./src/routes/user";
 
 const app = new Hono();
 
