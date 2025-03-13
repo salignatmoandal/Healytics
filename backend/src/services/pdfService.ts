@@ -4,7 +4,7 @@ import prisma from '../../prisma/prisma-client';
 
 
 // On étend le type pour ajouter un champ optionnel "result"
-export type SymptomWithResult = Symptom & { result?: string };
+export type SymptomWithResult = Prisma.Symptom & { result?: string };
 
 export const generateSymptomPdf = async (check: SymptomWithResult | null): Promise<Buffer> => {
   const doc = new PDFDocument({ bufferPages: true });

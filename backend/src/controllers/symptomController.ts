@@ -1,4 +1,4 @@
-import { Context } from "hono";
+import type { Context } from "hono";
 import { SymptomService } from "../services/symptomService";
 
 export class SymptomController {

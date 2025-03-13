@@ -1,5 +1,6 @@
 // src/controllers/userController.ts
-import { Context } from 'hono';
+// src/controllers/userController.ts
+import type { Context } from 'hono';
 import { UserService } from '../services/userService';
 
 
