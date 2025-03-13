@@ -21,8 +21,8 @@ export const generateSymptomPdf = async (check: SymptomWithResult | null): Promi
     doc.fontSize(14)
       .text(`Symptom Record ID: ${check.id}`, { continued: true });
     doc.moveDown();
-    // Display the symptoms (the "details" field defined in the model)
-    doc.text(`Symptoms: ${check.details}`);
+    // Display the symptoms (the "description" field defined in the model)
+    doc.text(`Symptoms: ${check.description}`);
     doc.moveDown();
     // Display the analysis result (if provided)
     if (check.result) {
