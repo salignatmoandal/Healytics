@@ -2,6 +2,7 @@
 import { type Context } from 'hono';
 import { AIService } from '../services/aiService';
 
+// Analyze Symptoms 
 export class AIController {
   static async analyze(c: Context) {
     try {

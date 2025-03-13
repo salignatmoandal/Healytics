@@ -21,6 +21,8 @@ app.route("/symptom", symptomRoutes);
 app.route("/pdf", pdfRoutes);
 app.route("/ai", aiRoutes);
 app.route("/users", usersRoutes);
+
+
 Bun.serve({
   fetch: app.fetch,
   port: 3000,
