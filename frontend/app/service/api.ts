@@ -59,6 +59,7 @@ export const api = {
   getUserProfile: () => 
     apiRequest('/users/profile', 'GET'),
   
-  updateUserProfile: (data: any) => 
-    apiRequest('/users/profile', 'PUT', data),
+
 };
+
+export default api;
