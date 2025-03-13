@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "AI symptom ",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

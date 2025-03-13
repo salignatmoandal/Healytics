@@ -1,0 +1,21 @@
+meta {
+  name: ai Analyzer
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/ai/analyze
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "symptoms": "fièvre, maux de tête, fatigue"
+  }
+}

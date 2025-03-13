@@ -1,0 +1,27 @@
+
+services:
+  db:
+    image: postgres:15
+    container_name: symptomchecker-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=symptomdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build: ../apps/backend
+    container_name: ai-symptom-backend
+    command: ["bun", "run", "src/index.ts"]
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL=postgresql://postgres:postgres@db:5432/symptomdb
+    depends_on:
+      - db
+
+volumes:
+  db_data:

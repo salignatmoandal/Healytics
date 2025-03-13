@@ -1,6 +1,7 @@
 import PDFDocument from 'pdfkit';
 import * as Prisma from '@prisma/client'; 
-type Symptom = Prisma.Symptom; // Extraction du type Symptom
+import prisma from '../../prisma/prisma-client';
+
 
 // On étend le type pour ajouter un champ optionnel "result"
 export type SymptomWithResult = Symptom & { result?: string };
